@@ -19,6 +19,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
+import static org.gradle.language.base.plugins.LifecycleBasePlugin.CHECK_TASK_NAME
+
 /**
  * Gradle plugin providing a means to verify that a project does not have multiple versions of a dependency library
  * configured.
@@ -30,6 +32,8 @@ class DependencyCheckerPlugin implements Plugin<Project> {
         Task checkDepTask = project.task 'checkDependencies', type: CheckDependenciesTask
 
         // make the dependency check part of the overall check
-        project.tasks['check'].dependsOn checkDepTask
+        project.getTasksByName(CHECK_TASK_NAME, true)?.each { Task t ->
+            t.dependsOn checkDepTask
+        }
     }
 }
