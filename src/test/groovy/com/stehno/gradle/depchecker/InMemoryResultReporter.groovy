@@ -15,17 +15,31 @@
  */
 package com.stehno.gradle.depchecker
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-
 /**
- * Gradle plugin providing a means to verify that a project does not have multiple versions of a dependency library
- * configured.
+ * Created by cjstehno on 3/12/16.
  */
-class DependencyCheckerPlugin implements Plugin<Project> {
+class InMemoryResultReporter implements ResultReporter {
+
+    private static final Map<String, List<String>> duplicates = [:]
 
     @Override
-    void apply(Project project) {
-        project.task 'checkDependencies', type: CheckDependenciesTask
+    void write(String configurationName, String groupModule) {
+        if (duplicates.containsKey(configurationName)) {
+            duplicates[configurationName] << groupModule
+        } else {
+            duplicates[configurationName] = [groupModule]
+        }
+    }
+
+    static boolean hasDuplicates(){
+        !duplicates.isEmpty()
+    }
+
+    static void clear() {
+        duplicates.clear()
+    }
+
+    static List<String> duplicatesFor(String cname) {
+        duplicates[cname] ? duplicates[cname].asImmutable() : []
     }
 }

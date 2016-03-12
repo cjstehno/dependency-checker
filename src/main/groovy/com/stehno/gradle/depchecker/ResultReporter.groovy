@@ -15,17 +15,21 @@
  */
 package com.stehno.gradle.depchecker
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import groovy.transform.TypeChecked
 
 /**
- * Gradle plugin providing a means to verify that a project does not have multiple versions of a dependency library
- * configured.
+ * Created by cjstehno on 3/12/16.
  */
-class DependencyCheckerPlugin implements Plugin<Project> {
+interface ResultReporter {
+
+    void write(String configurationName, String groupModule)
+}
+
+@TypeChecked
+class ConsoleResultReporter implements ResultReporter {
 
     @Override
-    void apply(Project project) {
-        project.task 'checkDependencies', type: CheckDependenciesTask
+    void write(String configurationName, String groupModule) {
+        println "Duplicate dependency detected in ($configurationName) $groupModule"
     }
 }
