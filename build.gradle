@@ -1,0 +1,61 @@
+
+plugins {
+    id 'com.github.hierynomus.license' version '0.12.1'
+    id 'com.gradle.plugin-publish' version '0.9.4'
+}
+
+group = "com.stehno.gradle"
+version = "0.0.1"
+
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    groovyDoc
+}
+
+dependencies {
+    localGroovy()
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    
+    groovyDoc "org.codehaus.groovy:groovy-groovydoc:2.4.6"
+    groovyDoc "org.codehaus.groovy:groovy-ant:2.4.6"
+}
+
+groovydoc {
+    groovyClasspath = configurations.groovyDoc
+}
+
+license {
+    header rootProject.file('license_header.txt')
+    ext.name = 'Christopher J. Stehno'
+    ext.email = 'chris@stehno.com'
+    ext.year = Calendar.instance.get(Calendar.YEAR)
+}
+
+pluginBundle {
+    website = 'http://cjstehno.github.io/dependency-checker/'
+    vcsUrl = 'https://github.com/cjstehno/dependency-checker'
+    description = 'Gradle plugin to aid in managing dependencies.'
+    tags = ['gradle', 'groovy']
+
+    plugins {
+        greetingsPlugin {
+            id = 'com.stehno.gradle.dependency-checker'
+            displayName = 'Gradle Dependency Checker Plugin'
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.11"
+}
