@@ -1,5 +1,3 @@
-# Empty Groovy Gradle Project
+# Gradle Dependency Checker Plugin
 
-Your new Groovy Gradle project is ready. You will want to run `gradle wrapper` to install the configured wrapper.
-
-Make something Groovy...
+_Coming soon..._
