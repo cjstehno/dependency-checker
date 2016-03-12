@@ -17,6 +17,7 @@ package com.stehno.gradle.depchecker
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -27,7 +28,7 @@ class CheckDependenciesTaskTest {
     @Rule public TemporaryFolder projectDir = new TemporaryFolder()
 
     @Before void before() {
-        InMemoryResultReporter.clear()
+        TestResultListener.clear()
     }
 
     @Test
@@ -45,12 +46,12 @@ class CheckDependenciesTaskTest {
         }
 
         project.checkDependencies {
-            resultReporterClass = 'com.stehno.gradle.depchecker.InMemoryResultReporter'
+            resultListenerClass = 'com.stehno.gradle.depchecker.TestResultListener'
         }
 
         project.tasks.checkDependencies.execute()
 
-        assert !InMemoryResultReporter.hasDuplicates()
+        assert !TestResultListener.hasDuplicates()
     }
 
     @Test
@@ -79,12 +80,12 @@ class CheckDependenciesTaskTest {
         }
 
         project.checkDependencies {
-            resultReporterClass = 'com.stehno.gradle.depchecker.InMemoryResultReporter'
+            resultListenerClass = 'com.stehno.gradle.depchecker.TestResultListener'
         }
 
         project.tasks.checkDependencies.execute()
 
-        assert !InMemoryResultReporter.hasDuplicates()
+        assert !TestResultListener.hasDuplicates()
     }
 
     @Test
@@ -115,16 +116,67 @@ class CheckDependenciesTaskTest {
         }
 
         project.checkDependencies {
-            resultReporterClass = 'com.stehno.gradle.depchecker.InMemoryResultReporter'
+            resultListenerClass = 'com.stehno.gradle.depchecker.TestResultListener'
         }
 
-        project.tasks.checkDependencies.execute()
+        try {
+            project.tasks.checkDependencies.execute()
+            Assert.fail()
+        } catch (RuntimeException rex){
+            // success
+        }
 
-        assert InMemoryResultReporter.hasDuplicates()
-        assert InMemoryResultReporter.duplicatesFor('compile').size() == 1
-        assert InMemoryResultReporter.duplicatesFor('compile').contains('commons-io:commons-io')
-        assert InMemoryResultReporter.duplicatesFor('runtime').size() == 0
-        assert InMemoryResultReporter.duplicatesFor('testCompile').size() == 1
-        assert InMemoryResultReporter.duplicatesFor('testCompile').contains('junit:junit')
+        assert TestResultListener.hasDuplicates()
+        assert TestResultListener.duplicatesFor('compile').size() == 1
+        assert TestResultListener.duplicatesFor('compile').contains('commons-io:commons-io')
+        assert TestResultListener.duplicatesFor('runtime').size() == 0
+        assert TestResultListener.duplicatesFor('testCompile').size() == 1
+        assert TestResultListener.duplicatesFor('testCompile').contains('junit:junit')
+    }
+
+    @Test
+    void 'checkDependencies: with duplicates (filtered)'() {
+        Project project = ProjectBuilder.builder().withProjectDir(projectDir.newFolder()).build()
+
+        project.apply plugin: 'java'
+        project.apply plugin: DependencyCheckerPlugin
+
+        project.repositories {
+            jcenter()
+        }
+
+        project.dependencies {
+            compile('com.stehno.vanilla:vanilla-core:0.2.0') {
+                exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+            }
+            compile 'commons-io:commons-io:2.4'
+            compile 'commons-io:commons-io:2.3'
+
+            runtime 'org.postgresql:postgresql:9.4.1207'
+
+            testCompile 'junit:junit:4.12'
+            testCompile 'junit:junit:4.10'
+            testCompile('com.stehno.vanilla:vanilla-core:0.2.0') {
+                exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+            }
+        }
+
+        project.checkDependencies {
+            configurations = ['runtime', 'testCompile']
+            resultListenerClass = 'com.stehno.gradle.depchecker.TestResultListener'
+        }
+
+        try {
+            project.tasks.checkDependencies.execute()
+            Assert.fail()
+        } catch (RuntimeException rex){
+            // success
+        }
+
+        assert TestResultListener.hasDuplicates()
+        assert TestResultListener.duplicatesFor('compile').size() == 0
+        assert TestResultListener.duplicatesFor('runtime').size() == 0
+        assert TestResultListener.duplicatesFor('testCompile').size() == 1
+        assert TestResultListener.duplicatesFor('testCompile').contains('junit:junit')
     }
 }

@@ -24,19 +24,20 @@ import org.gradle.api.tasks.TaskAction
  * Gradle task used to check the dependencies of a project to ensure that there are no duplicate dependencies (with different
  * versions).
  *
+ * If duplications are found - the build will fail.
+ *
  * The task will accept the following inputs:
  *
  * <b>configurations</b> - a list of configuration names used to limit the dependency check. All configurations are checked if
  * this is not specified.
- *
- * <b>resultReporterClass</b> - the ResultReporter class to be used, generally this is for testing. The default ConsoleResultReporter
- * should be used.
  */
 @TypeChecked
 class CheckDependenciesTask extends DefaultTask {
 
-    @Input String configurations = []
-    @Input String resultReporterClass = ConsoleResultReporter.name
+    // TODO: add to the check task
+
+    @Input Collection<String> configurations = []
+    @Input Class<? extends ResultListener> resultListenerClass
 
     CheckDependenciesTask() {
         name = 'checkDependencies'
@@ -46,19 +47,35 @@ class CheckDependenciesTask extends DefaultTask {
     }
 
     @TaskAction void checkDependencies() {
-        ResultReporter resultReporter = Class.forName(resultReporterClass).newInstance() as ResultReporter
+        DependencyCheckResults results = new DependencyCheckResults()
+        ResultListener resultListener = resultListenerClass ? resultListenerClass.newInstance() : null
+
         Set<String> deps = [] as Set<String>
 
-        project.configurations.names.each { String cname ->
+        (configurations ?: project.configurations.names).each { String cname ->
             project.configurations.getByName(cname).dependencies.each { d ->
                 String key = "${d.group}:${d.name}"
 
                 if (!deps.add(key)) {
-                    resultReporter.write(cname, key)
+                    results[cname] = key
+                    resultListener?.duplicated(cname, key)
                 }
             }
 
             deps.clear()
         }
+
+        if (results.hasDuplications()) {
+            logger.error 'Dependency duplications detected ({}):', results.count()
+
+            results.each { String cname, String groupModule ->
+                logger.error 'Duplicated dependency in ({}) {}', cname, groupModule
+            }
+
+            throw new RuntimeException('Duplicate dependencies detected')
+        }
     }
 }
+
+
+

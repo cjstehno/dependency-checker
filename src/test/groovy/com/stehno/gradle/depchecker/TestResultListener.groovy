@@ -18,20 +18,11 @@ package com.stehno.gradle.depchecker
 /**
  * Created by cjstehno on 3/12/16.
  */
-class InMemoryResultReporter implements ResultReporter {
+class TestResultListener implements ResultListener {
 
     private static final Map<String, List<String>> duplicates = [:]
 
-    @Override
-    void write(String configurationName, String groupModule) {
-        if (duplicates.containsKey(configurationName)) {
-            duplicates[configurationName] << groupModule
-        } else {
-            duplicates[configurationName] = [groupModule]
-        }
-    }
-
-    static boolean hasDuplicates(){
+    static boolean hasDuplicates() {
         !duplicates.isEmpty()
     }
 
@@ -41,5 +32,14 @@ class InMemoryResultReporter implements ResultReporter {
 
     static List<String> duplicatesFor(String cname) {
         duplicates[cname] ? duplicates[cname].asImmutable() : []
+    }
+
+    @Override
+    void duplicated(String configurationName, String groupModule) {
+        if (duplicates.containsKey(configurationName)) {
+            duplicates[configurationName] << groupModule
+        } else {
+            duplicates[configurationName] = [groupModule]
+        }
     }
 }
