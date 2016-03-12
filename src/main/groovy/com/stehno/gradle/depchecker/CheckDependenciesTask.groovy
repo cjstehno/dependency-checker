@@ -66,10 +66,10 @@ class CheckDependenciesTask extends DefaultTask {
             logger.error 'Dependency duplications detected ({}):', results.count()
 
             results.each { String cname, String groupModule ->
-                logger.error 'Duplicated dependency in ({}) {}', cname, groupModule
+                logger.error '- Duplicated dependency in ({}) {}', cname, groupModule
             }
 
-            throw new RuntimeException('Duplicate dependencies detected')
+            throw new RuntimeException("Duplicate dependencies detected (${results.count()})")
         }
     }
 }
