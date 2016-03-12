@@ -55,6 +55,25 @@ class CheckDependenciesTaskTest {
     }
 
     @Test
+    void 'checkDependencies: normal'() {
+        Project project = ProjectBuilder.builder().withProjectDir(projectDir.newFolder()).build()
+
+        project.apply plugin: 'java'
+        project.apply plugin: DependencyCheckerPlugin
+
+        project.repositories {
+            jcenter()
+        }
+
+        project.dependencies {
+        }
+
+        project.tasks.checkDependencies.execute()
+
+        assert !TestResultListener.hasDuplicates()
+    }
+
+    @Test
     void 'checkDependencies: without duplicates'() {
         Project project = ProjectBuilder.builder().withProjectDir(projectDir.newFolder()).build()
 
@@ -132,6 +151,16 @@ class CheckDependenciesTaskTest {
         assert TestResultListener.duplicatesFor('runtime').size() == 0
         assert TestResultListener.duplicatesFor('testCompile').size() == 1
         assert TestResultListener.duplicatesFor('testCompile').contains('junit:junit')
+    }
+
+    @Test
+    void 'check depends on checkDependencies'() {
+        Project project = ProjectBuilder.builder().withProjectDir(projectDir.newFolder()).build()
+
+        project.apply plugin: 'java'
+        project.apply plugin: DependencyCheckerPlugin
+
+        assert project.tasks['check'].dependsOn.contains(project.tasks['checkDependencies'])
     }
 
     @Test

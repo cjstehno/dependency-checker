@@ -34,16 +34,13 @@ import org.gradle.api.tasks.TaskAction
 @TypeChecked
 class CheckDependenciesTask extends DefaultTask {
 
-    // TODO: add to the check task
-
     @Input Collection<String> configurations = []
-    @Input Class<? extends ResultListener> resultListenerClass
+    @Input Class<? extends ResultListener> resultListenerClass = NoOpResultListener
 
     CheckDependenciesTask() {
         name = 'checkDependencies'
         group = 'Verification'
         description = 'Checks the project dependencies for duplicate libraries with different versions.'
-        //        shouldRunAfter 'check' TODO: enable (after clean too?)
     }
 
     @TaskAction void checkDependencies() {

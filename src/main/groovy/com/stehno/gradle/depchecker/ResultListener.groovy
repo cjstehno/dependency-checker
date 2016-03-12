@@ -22,3 +22,11 @@ interface ResultListener {
 
     void duplicated(String configName, String groupModule)
 }
+
+class NoOpResultListener implements  ResultListener {
+
+    @Override
+    void duplicated(String configName, String groupModule) {
+        // does nuttin
+    }
+}
