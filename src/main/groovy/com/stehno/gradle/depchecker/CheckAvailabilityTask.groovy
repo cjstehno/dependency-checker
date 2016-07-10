@@ -70,7 +70,11 @@ class CheckAvailabilityTask extends DefaultTask {
 
             results.each { Boolean passed, List<DependencyCoordinate> list ->
                 list.each { c ->
-                    logger.info "Availability check for ($c): ${passed ? 'PASSED' : 'FAILED'}"
+                    if (passed) {
+                        logger.info "Availability check for ($c): PASSED"
+                    } else {
+                        logger.error "Availability check for ($c): FAILED"
+                    }
                 }
             }
 

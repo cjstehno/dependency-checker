@@ -142,7 +142,7 @@ class CheckAvailabilityTaskSpec extends Specification {
         totalSuccess result
     }
 
-    void 'checkAvailability --info (some available - not fail on missing - some ignored)'() {
+    void 'checkAvailability (some available - not fail on missing - some ignored)'() {
         setup:
         def availables = available([
             'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207'
@@ -164,10 +164,10 @@ class CheckAvailabilityTaskSpec extends Specification {
         """
 
         when:
-        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+        BuildResult result = gradleRunner().withArguments('checkAvailability').build()
 
         then:
-        checkForLoggedStatus result, availables, true
+        checkForNoLoggedStatus result, true
         checkForLoggedStatus result, unavailables - ignoreds, false
 
         // The build succeeds since we are not failing on missing

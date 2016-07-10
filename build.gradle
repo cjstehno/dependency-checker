@@ -9,7 +9,7 @@ plugins {
 // TODO: tweak the jacoco config
 
 group = 'com.stehno.gradle'
-version = '0.2.0'
+version = '0.2.1'
 
 sourceCompatibility = 8
 targetCompatibility = 8
@@ -48,12 +48,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile ('org.spockframework:spock-core:1.0-groovy-2.4'){
         exclude module:'groovy-all'
-    }
-    testCompile('org.mock-server:mockserver-client-java:3.10.4') {
-        exclude group: 'ch.qos.logback', module: 'logback-classic'
-    }
-    testCompile('org.mock-server:mockserver-netty:3.10.4') {
-        exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
 
     functionalTestCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
