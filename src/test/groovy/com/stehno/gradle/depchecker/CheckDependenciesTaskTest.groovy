@@ -26,6 +26,8 @@ import org.junit.rules.TemporaryFolder
 
 class CheckDependenciesTaskTest {
 
+    // FIXME: move to new test method
+
     @Rule public TemporaryFolder projectDir = new TemporaryFolder()
 
     @Before void before() {
