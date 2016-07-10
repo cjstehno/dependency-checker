@@ -25,12 +25,93 @@ import org.mockserver.client.server.MockServerClient
 import org.mockserver.junit.MockServerRule
 import spock.lang.Specification
 
+import static org.gradle.testkit.runner.TaskOutcome.FAILED
+
 class CheckAvailabilityTaskSpec extends Specification {
 
     @Rule public TemporaryFolder projectDir = new TemporaryFolder()
     @Rule public MockServerRule server = new MockServerRule(this)
 
     private MockServerClient client
+
+    void 'checkAvailability --info (all available - fail on missing)'() {
+        setup:
+        def availables = available([
+            'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207',
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46', 'junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3'
+        ])
+
+        saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://localhost:${server.port}/repo']
+                failOnMissing = true
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+
+        then:
+        checkForLoggedStatus result, availables, true
+        checkForNoLoggedStatus result, false
+
+        totalSuccess result
+    }
+
+    void 'checkAvailability --info (all available - fail on missing - override url)'() {
+        setup:
+        def availables = available([
+            'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207',
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46', 'junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3'
+        ])
+
+        saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://foo.edu/repo']
+                failOnMissing = true
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info', "-PrepoUrls=http://localhost:${server.port}/repo").build()
+
+        then:
+        checkForLoggedStatus result, availables, true
+        checkForNoLoggedStatus result, false
+
+        totalSuccess result
+    }
+
+    void 'checkAvailability --info (all available - fail on missing - runtime configuration)'() {
+        setup:
+        def availables = available([
+            'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207',
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46'
+        ])
+
+        saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://localhost:${server.port}/repo']
+                configurations = ['runtime']
+                failOnMissing = true
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+
+        then:
+        checkForLoggedStatus result, availables, true
+        checkForNoLoggedStatus result, false
+
+        totalSuccess result
+    }
 
     void 'checkAvailability --info (some available - not fail on missing)'() {
         setup:
@@ -45,6 +126,130 @@ class CheckAvailabilityTaskSpec extends Specification {
         ])
 
         saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://localhost:${server.port}/repo']
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+
+        then:
+        checkForLoggedStatus result, availables, true
+        checkForLoggedStatus result, unavailables, false
+
+        // The build succeeds since we are not failing on missing
+        totalSuccess result
+    }
+
+    void 'checkAvailability --info (some available - not fail on missing - some ignored)'() {
+        setup:
+        def availables = available([
+            'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207'
+        ])
+
+        def unavailables = unavailable([
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46', 'junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3'
+        ])
+
+        def ignoreds = ['junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3']
+
+        saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://localhost:${server.port}/repo']
+                ignored = ['junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3']
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+
+        then:
+        checkForLoggedStatus result, availables, true
+        checkForLoggedStatus result, unavailables - ignoreds, false
+
+        // The build succeeds since we are not failing on missing
+        totalSuccess result
+    }
+
+    void 'checkAvailability --info (some available - fail on missing)'() {
+        setup:
+        available([
+            'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207'
+        ])
+
+        unavailable([
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46', 'junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3'
+        ])
+
+        saveBuildFile """
+            checkAvailability {
+                repoUrls = ['http://localhost:${server.port}/repo']
+                failOnMissing = true
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').buildAndFail()
+
+        then:
+        result.tasks(FAILED).find { BuildTask task -> task.path == ':checkAvailability' }
+    }
+
+    void 'checkAvailability --info (some available - fail on missing - no repos)'() {
+        setup:
+        available([
+            'com.stehno.vanilla:vanilla-core:0.2.0', 'commons-io:commons-io:2.4', 'org.crsh:crsh.shell.ssh:1.2.10', 'org.postgresql:postgresql:9.4.1207'
+        ])
+
+        unavailable([
+            'org.crsh:crsh.shell.core:1.2.10', 'org.crsh:crsh.cli:1.2.10', 'org.codehaus.groovy:groovy-all:1.8.9', 'org.apache.sshd:sshd-core:0.6.0',
+            'org.apache.mina:mina-core:2.0.4', 'org.slf4j:slf4j-api:1.6.1', 'org.apache.sshd:sshd-pam:0.6.0', 'net.sf.jpam:jpam:1.1',
+            'commons-logging:commons-logging:1.0.4', 'org.bouncycastle:bcprov-jdk16:1.46', 'junit:junit:4.12', 'org.hamcrest:hamcrest-core:1.3'
+        ])
+
+        saveBuildFile """
+            checkAvailability {
+                failOnMissing = true
+            }
+        """
+
+        when:
+        BuildResult result = gradleRunner().withArguments('checkAvailability', '--info').build()
+
+        then:
+        checkForNoLoggedStatus result, true
+        checkForNoLoggedStatus result, false
+        totalSuccess result
+    }
+
+    private GradleRunner gradleRunner() {
+        GradleRunner.create().withPluginClasspath().withProjectDir(projectDir.root)
+    }
+
+    private static boolean totalSuccess(final BuildResult result) {
+        result.tasks.every { BuildTask task ->
+            task.outcome == TaskOutcome.SUCCESS
+        }
+    }
+
+    private static boolean checkForNoLoggedStatus(final BuildResult result, boolean found) {
+        !result.output.contains(found ? 'PASSED' : 'FAILED')
+    }
+
+    private static boolean checkForLoggedStatus(final BuildResult result, final Collection<String> avails, boolean found) {
+        avails.every { dep ->
+            result.output.contains("Availability check for ($dep): ${found ? 'PASSED' : 'FAILED'}")
+        }
+    }
+
+    private void saveBuildFile(final String taskConfig) {
+        File buildFile = projectDir.newFile('build.gradle')
+        buildFile.text = """
             plugins {
                 id 'com.stehno.gradle.dependency-checker'
                 id 'java'
@@ -55,9 +260,6 @@ class CheckAvailabilityTaskSpec extends Specification {
             }
 
             dependencies {
-                compile('com.stehno.vanilla:vanilla-core:0.2.0') {
-                    exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-                }
                 compile 'commons-io:commons-io:2.4'
                 compile 'org.crsh:crsh.shell.ssh:1.2.10'
 
@@ -69,35 +271,8 @@ class CheckAvailabilityTaskSpec extends Specification {
                 }
             }
 
-            checkAvailability {
-                repoUrls = ['http://localhost:${server.port}/repo']
-            }
-        """
-
-        when:
-        BuildResult result = GradleRunner.create().withPluginClasspath().withProjectDir(projectDir.root)
-            .withArguments('checkAvailability', '--info').build()
-
-        then:
-        // check for the success notices
-        availables.every { dep->
-            result.output.contains("Availability check for ($dep): PASSED")
-        }
-
-        // check for the failure notices
-        unavailables.every { dep->
-            result.output.contains("Availability check for ($dep): FAILED")
-        }
-
-        // The build succeeds since we are not failing on missing
-        result.getTasks().every { BuildTask task ->
-            task.outcome == TaskOutcome.SUCCESS
-        }
-    }
-
-    private void saveBuildFile(String content) {
-        File buildFile = projectDir.newFile('build.gradle')
-        buildFile.text = content.stripIndent()
+            $taskConfig
+        """.stripIndent()
     }
 
     private Collection<String> available(Collection<String> coords) {

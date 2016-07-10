@@ -1,15 +1,15 @@
 plugins {
     id 'com.github.hierynomus.license' version '0.13.1'
     id 'com.gradle.plugin-publish' version '0.9.4'
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'jacoco'
 }
 
-// FIXME: add in test coverage and groovydoc
+// TODO: tweak the jacoco config
 
 group = 'com.stehno.gradle'
 version = '0.2.0'
-
-apply plugin: 'java-gradle-plugin'
-apply plugin: 'groovy'
 
 sourceCompatibility = 8
 targetCompatibility = 8
@@ -65,24 +65,6 @@ dependencies {
     functionalTestCompile('org.mock-server:mockserver-netty:3.10.4') {
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
-}
-
-// Write the plugin's classpath to a file to share with the tests
-task createClasspathManifest {
-    def outputDir = file("$buildDir/$name")
-
-    inputs.files sourceSets.main.runtimeClasspath
-    outputs.dir outputDir
-
-    doLast {
-        outputDir.mkdirs()
-        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join('\n')
-    }
-}
-
-// Add the classpath file to the test runtime classpath
-dependencies {
-    testRuntime files(createClasspathManifest)
 }
 
 license {

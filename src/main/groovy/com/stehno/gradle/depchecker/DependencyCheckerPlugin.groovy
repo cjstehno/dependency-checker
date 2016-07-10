@@ -17,17 +17,15 @@ package com.stehno.gradle.depchecker
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 
 /**
- * Gradle plugin providing a means to verify that a project does not have multiple versions of a dependency library
- * configured.
+ * Gradle plugin providing additional dependency management and inspection tasks.
  */
 class DependencyCheckerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        Task checkDepTask = project.task 'checkDependencies', type: CheckDependenciesTask
+        project.task 'checkDependencies', type: CheckDependenciesTask
         project.task 'checkAvailability', type: CheckAvailabilityTask
 
         // FIXME: this does not seem to work right - fix it

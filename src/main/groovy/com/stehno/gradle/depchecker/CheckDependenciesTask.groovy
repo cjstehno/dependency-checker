@@ -34,6 +34,8 @@ import org.gradle.api.tasks.TaskAction
 @TypeChecked
 class CheckDependenciesTask extends DefaultTask {
 
+    // TODO: should I do (or allow) deep checking (like the other task)?
+
     @Input Collection<String> configurations = []
     @Input Class<? extends ResultListener> resultListenerClass = NoOpResultListener
 
