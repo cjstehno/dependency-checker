@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Christopher J. Stehno <chris@stehno.com>
+ * Copyright (C) 2017 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ class CheckDependenciesTask extends DefaultTask {
 
     // TODO: should I do (or allow) deep checking (like the other task)?
 
+    @Input Collection<String> ignored = []
     @Input Collection<String> configurations = []
     @Input Class<? extends ResultListener> resultListenerClass = NoOpResultListener
 
     CheckDependenciesTask() {
-        name = 'checkDependencies'
         group = 'Verification'
         description = 'Checks the project dependencies for duplicate libraries with different versions.'
     }
@@ -55,7 +55,7 @@ class CheckDependenciesTask extends DefaultTask {
             project.configurations.getByName(cname).dependencies.each { d ->
                 String key = "${d.group}:${d.name}"
 
-                if (!deps.add(key)) {
+                if (!ignored.contains(key) && !deps.add(key)) {
                     results[cname] = key
                     resultListener?.duplicated(cname, key)
                 }
