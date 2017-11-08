@@ -63,8 +63,6 @@ dependencies {
 
 license {
     header rootProject.file('license_header.txt')
-    ext.name = 'Christopher J. Stehno'
-    ext.email = 'chris@stehno.com'
     ext.year = Calendar.instance.get(Calendar.YEAR)
 }
 
