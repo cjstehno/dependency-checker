@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Christopher J. Stehno <chris@stehno.com>
+ * Copyright (C) 2017 Christopher J. Stehno <chris@stehno.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ class CheckAvailabilityTask extends DefaultTask {
     @Input boolean failOnMissing = false
 
     CheckAvailabilityTask() {
-        name = 'checkAvailability'
         group = 'Verification'
         description = 'Checks the availability of the required dependencies against a specified artifact repository.'
     }
