@@ -45,7 +45,7 @@
     }
   }
   dependencies {
-    classpath <span class="pl-s"><span class="pl-pds">"</span>gradle.plugin.com.stehno.gradle:dependency-checker:0.2.1<span class="pl-pds">"</span></span>
+    classpath <span class="pl-s"><span class="pl-pds">"</span>gradle.plugin.com.stehno.gradle:dependency-checker:0.2.2<span class="pl-pds">"</span></span>
   }
 }
 
@@ -54,7 +54,7 @@ apply <span class="pl-c1">plugin</span>: <span class="pl-s"><span class="pl-pds"
 <p>Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:</p>
 
 <div class="highlight highlight-source-groovy"><pre>plugins {
-  id <span class="pl-s"><span class="pl-pds">"</span>com.stehno.gradle.dependency-checker<span class="pl-pds">"</span></span> version <span class="pl-s"><span class="pl-pds">"</span>0.2.1<span class="pl-pds">"</span></span>
+  id <span class="pl-s"><span class="pl-pds">"</span>com.stehno.gradle.dependency-checker<span class="pl-pds">"</span></span> version <span class="pl-s"><span class="pl-pds">"</span>0.2.2<span class="pl-pds">"</span></span>
 }</pre></div>
 
 <h2>
@@ -69,7 +69,7 @@ will be failed if any duplications are found.</p>
 <h4>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuration</h4>
 
-<p>Without any configuration changes, the <code>checkDependencies</code> task will check all available configurations for duplicate dependencies and fail the build 
+<p>Without any configuration changes, the <code>checkDependencies</code> task will check all available configurations for duplicate dependencies and fail the build
 if it finds any. It will also report all duplicated dependencies in the standard output.</p>
 
 <p>You can limit the scope of the dependency checking to a list of specified configurations using the task configuration, as follows:</p>
@@ -78,7 +78,7 @@ if it finds any. It will also report all duplicated dependencies in the standard
     configurations <span class="pl-k">=</span> [<span class="pl-s"><span class="pl-pds">'</span>compile<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>runtime<span class="pl-pds">'</span></span>]
 }</pre></div>
 
-<p>The above code snippet, when added to your <code>build.gradle</code> will limit the dependency checking to the <code>compile</code> and <code>runtime</code> configurations, all others 
+<p>The above code snippet, when added to your <code>build.gradle</code> will limit the dependency checking to the <code>compile</code> and <code>runtime</code> configurations, all others
 will be ignored.</p>
 
 <p>You can easily make your build automatically check the dependencies by adding one or both of the following lines to your <code>build.gradle</code> file:</p>
@@ -113,8 +113,8 @@ or not any need to be added to support your project.</p>
 <a id="repourls" class="anchor" href="#repourls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>repoUrls</code>
 </h5>
 
-<p>Provides a collection of URL strings for your remote artifact repositories. These repositories must use standard maven directory layout. If no 
-repos are provided, the task will silently pass. This property may also be provided on the command line so that the value need not be coded into the 
+<p>Provides a collection of URL strings for your remote artifact repositories. These repositories must use standard maven directory layout. If no
+repos are provided, the task will silently pass. This property may also be provided on the command line so that the value need not be coded into the
 build file itself.</p>
 
 <pre><code>./gradlew checkAvailability -PrepoUrls=http://artifacts.mycompany.com/repository
@@ -130,7 +130,7 @@ build file itself.</p>
 <a id="failonmissing" class="anchor" href="#failonmissing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>failOnMissing</code>
 </h5>
 
-<p>By default, unavailable dependencies will be listed in the build output; however, if it is desirable to fail the build when artifacts are 
+<p>By default, unavailable dependencies will be listed in the build output; however, if it is desirable to fail the build when artifacts are
 unavailable, this may be done by setting <code>failOnMissing = true</code>. The dependencies will be checked and a list of all failures will be provided before
 the build is failed.</p>
       </section>
@@ -140,6 +140,6 @@ the build is failed.</p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+
   </body>
 </html>
