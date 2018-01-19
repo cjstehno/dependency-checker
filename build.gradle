@@ -9,7 +9,7 @@ plugins {
 // TODO: tweak the jacoco config
 
 group = 'com.stehno.gradle'
-version = '0.2.2'
+version = '0.2.3'
 
 sourceCompatibility = 8
 targetCompatibility = 8

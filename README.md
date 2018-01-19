@@ -14,7 +14,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.stehno.gradle:dependency-checker:0.2.2"
+    classpath "gradle.plugin.com.stehno.gradle:dependency-checker:0.2.3"
   }
 }
 
@@ -25,7 +25,7 @@ Build script snippet for new, incubating, plugin mechanism introduced in Gradle 
 
 ```groovy
 plugins {
-  id "com.stehno.gradle.dependency-checker" version "0.2.2"
+  id "com.stehno.gradle.dependency-checker" version "0.2.3"
 }
 ```
 
