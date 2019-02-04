@@ -2,6 +2,8 @@
 
 A Gradle plugin to assist in validating project dependencies.
 
+> ABANDONED: I have stopped working on this plugin, but I will review and manage any pull requests if anyone else wants to contribute.
+
 ## Install
 
 Build script snippet for use in all Gradle versions:
